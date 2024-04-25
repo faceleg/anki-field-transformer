@@ -1,0 +1,29 @@
+import { fetchNotesFromAnki } from './anki';
+import { concurrentProcessor } from './utils/concurrent-processor';
+import { primeProcessNote } from './utils/process-note';
+
+import * as dotenv from 'dotenv-extended';
+
+// Load environment variables from .env file
+dotenv.load({
+    path: '.env.local',
+    errorOnMissing: true,
+    errorOnExtra: true,
+});
+
+// Define types for your environment variables
+interface EnvVariables {
+    ANKI_DECK: string;
+    MAX_CONCURRENCY: string;
+}
+
+const { ANKI_DECK, MAX_CONCURRENCY }: EnvVariables = process.env as unknown as EnvVariables;
+
+(async function (): Promise<void> {
+    console.log(`Processing cards from Anki deck "${ANKI_DECK}"...`);
+
+        const notes = await fetchNotesFromAnki(ANKI_DECK);
+        console.log(`Found ${notes.length} notes eligible for fetching`);
+
+        await concurrentProcessor(notes, parseInt(MAX_CONCURRENCY as string), primeProcessNote());
+})();
