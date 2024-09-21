@@ -11,47 +11,50 @@ import {
 import { filterNoteContent } from './anki/note-text-filter';
 
 export interface NoteFields extends NotesInfoItemFields {
-    Simplified: NotesInfoItemField;
-    // Traditional: NotesInfoItemField;
-    Audio: NotesInfoItemField;
-    Meaning: NotesInfoItemField;
-    Image: NotesInfoItemField;
+    Pinyin: NotesInfoItemField;
+    English: NotesInfoItemField;
+    Sound: NotesInfoItemField;
 }
 
 export interface NoteForProcessing {
     noteId: NoteId;
-    Simplified: string;
-    // Traditional: string;
+    Pinyin: string;
 }
 
-export async function fetchNotesFromAnki(deckName: string): Promise<NoteForProcessing[]> {
+export type FilterFunction<T> = (value: T, index: number, array: T[]) => boolean;
+
+/**
+ * 
+ * @param array (method) Array<NoteForProcessing>.filter<NoteForProcessing>(predicate: (value: NoteForProcessing, index: number, array: NoteForProcessing[]) => value is NoteForProcessing, thisArg?: any): NoteForProcessing[] (+1 overload)
+
+ * @param predicate 
+ * @returns 
+ */
+export async function fetchNotesFromAnki(deckName: string, notesFilter?: FilterFunction<NoteForProcessing>): Promise<NoteForProcessing[]> {
     const notesIds = await findNotes(deckName);
 
     const notesInfo = await fetchNotesInfo<NoteFields>(notesIds);
 
-    // const notesWithoutExamples = notesInfo.filter((note) => note.fields.Examples.value.length === 0);
     const notesForProcessing = notesInfo.map((note): NoteForProcessing => {
         return {
             noteId: note.noteId,
-            Simplified: note.fields.Simplified.value,
-            // Traditional: note.fields.Traditional.value,
+            Pinyin: note.fields.Pinyin.value,
         };
     });
 
     const filteredNotes = notesForProcessing.map((note) => {
         return {
             noteId: note.noteId,
-            Simplified: filterNoteContent(note.Simplified),
-            // Traditional: filterNoteContent(note.Traditional),
+            Pinyin: filterNoteContent(note.Pinyin),
         };
     });
 
-    return filteredNotes;
+    return filteredNotes.filter(notesFilter ? notesFilter : () => true);
 
 }
 
 export interface UpdateNoteFields extends UpdateNoteFieldsFields {
-    Simplified: string;
+    Pinyin: string;
 }
 
 export async function updateNote(noteData: UpdateNoteFieldsNote<UpdateNoteFields>): Promise<void> {

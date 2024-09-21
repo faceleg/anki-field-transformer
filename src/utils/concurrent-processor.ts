@@ -22,7 +22,7 @@ export async function concurrentProcessor<T>(
             if (index !== -1) {
                 processingQueue.splice(index, 1);
             }
-            console.log(`${items.length} items remaining. Completed: ${JSON.stringify(item)}`);
+            // console.log(`${items.length} items remaining. Completed: ${JSON.stringify(item)}`);
             await processNextItem();
         }
     }
