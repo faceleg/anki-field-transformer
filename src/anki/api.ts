@@ -29,9 +29,9 @@ interface NotesInfoResponse<T> {
     error: AnkiConnectError;
 }
 
-export const findNotes = async (deckName: string): Promise<NoteId[]> => {
+export const findNotes = async (query: string): Promise<NoteId[]> => {
     // if the deckname contains spaces, they must be replaced with underscore
-    const treatedDeckName = deckName.replaceAll(' ', '_');
+    const ankiQuery = query.replaceAll(' ', '_');
 
     const data = await fetch('http://127.0.0.1:8765', {
         method: 'POST',
@@ -39,7 +39,7 @@ export const findNotes = async (deckName: string): Promise<NoteId[]> => {
             action: 'findNotes',
             version: 6,
             params: {
-                query: 'deck:' + treatedDeckName,
+                query: ankiQuery,
             },
         }),
     });

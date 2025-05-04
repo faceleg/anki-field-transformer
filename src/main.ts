@@ -23,11 +23,14 @@ function containsHTML(str: string): boolean {
   const htmlRegex = /<[^>]+>/; // Regular expression to match HTML tags
   return htmlRegex.test(str);   // Returns true if the string contains HTML
 }
+
 (async function (): Promise<void> {
-    console.log(`Processing cards from Anki deck "${ANKI_DECK}"...`);
+    console.log(`Processing cards from Anki query "${ANKI_DECK}"...`);
 
     const notes = await fetchNotesFromAnki(ANKI_DECK, (value: NoteForProcessing, index: number, array: NoteForProcessing[]) => {
-        return value.Pinyin.length > 3 && !containsHTML(value.Pinyin)
+return value.ExamplesBlank.length === 0;
+        // return true;
+        // return value.Pinyin.length > 3 && !containsHTML(value.Pinyin)
         // return !value.Pinyin.includes(' ');
     });
         console.log(`Found ${notes.length} notes eligible for fetching`);

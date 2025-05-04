@@ -18,7 +18,9 @@ export interface NoteFields extends NotesInfoItemFields {
 
 export interface NoteForProcessing {
     noteId: NoteId;
-    Pinyin: string;
+    Examples: string;
+    Simplified: string;
+    ExamplesBlank: string;
 }
 
 export type FilterFunction<T> = (value: T, index: number, array: T[]) => boolean;
@@ -38,14 +40,18 @@ export async function fetchNotesFromAnki(deckName: string, notesFilter?: FilterF
     const notesForProcessing = notesInfo.map((note): NoteForProcessing => {
         return {
             noteId: note.noteId,
-            Pinyin: note.fields.Pinyin.value,
+            Examples: note.fields.Examples.value,
+            ExamplesBlank: note.fields.ExamplesBlank.value,
+            Simplified: note.fields.Simplified.value,
         };
     });
 
     const filteredNotes = notesForProcessing.map((note) => {
         return {
             noteId: note.noteId,
-            Pinyin: filterNoteContent(note.Pinyin),
+            Examples: filterNoteContent(note.Examples),
+            ExamplesBlank: filterNoteContent(note.ExamplesBlank),
+            Simplified: filterNoteContent(note.Simplified),
         };
     });
 
@@ -54,7 +60,7 @@ export async function fetchNotesFromAnki(deckName: string, notesFilter?: FilterF
 }
 
 export interface UpdateNoteFields extends UpdateNoteFieldsFields {
-    Pinyin: string;
+    ExamplesBlank: string;
 }
 
 export async function updateNote(noteData: UpdateNoteFieldsNote<UpdateNoteFields>): Promise<void> {
