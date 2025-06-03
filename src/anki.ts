@@ -18,9 +18,10 @@ export interface NoteFields extends NotesInfoItemFields {
 
 export interface NoteForProcessing {
     noteId: NoteId;
-    Examples: string;
-    Simplified: string;
-    ExamplesBlank: string;
+    Examples?: string;
+    Simplified?: string;
+    ExamplesBlank?: string;
+    Pinyin?: string;
 }
 
 export type FilterFunction<T> = (value: T, index: number, array: T[]) => boolean;
@@ -33,8 +34,8 @@ export type FilterFunction<T> = (value: T, index: number, array: T[]) => boolean
  * @returns 
  */
 export async function fetchNotesFromAnki(deckName: string, notesFilter?: FilterFunction<NoteForProcessing>): Promise<NoteForProcessing[]> {
-    const notesIds = await findNotes(deckName);
 
+    const notesIds = await findNotes(deckName);
     const notesInfo = await fetchNotesInfo<NoteFields>(notesIds);
 
     const notesForProcessing = notesInfo.map((note): NoteForProcessing => {
@@ -43,15 +44,17 @@ export async function fetchNotesFromAnki(deckName: string, notesFilter?: FilterF
             Examples: note.fields.Examples.value,
             ExamplesBlank: note.fields.ExamplesBlank.value,
             Simplified: note.fields.Simplified.value,
+            Pinyin: note.fields.Pinyin.value,
         };
     });
 
     const filteredNotes = notesForProcessing.map((note) => {
         return {
             noteId: note.noteId,
-            Examples: filterNoteContent(note.Examples),
-            ExamplesBlank: filterNoteContent(note.ExamplesBlank),
-            Simplified: filterNoteContent(note.Simplified),
+            Pinyin: filterNoteContent(note.Pinyin || ''),
+            // Examples: filterNoteContent(note.Examples),
+            // ExamplesBlank: filterNoteContent(note.ExamplesBlank),
+            // Simplified: filterNoteContent(note.Simplified),
         };
     });
 
@@ -60,7 +63,7 @@ export async function fetchNotesFromAnki(deckName: string, notesFilter?: FilterF
 }
 
 export interface UpdateNoteFields extends UpdateNoteFieldsFields {
-    ExamplesBlank: string;
+    Pinyin: string;
 }
 
 export async function updateNote(noteData: UpdateNoteFieldsNote<UpdateNoteFields>): Promise<void> {

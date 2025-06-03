@@ -3,6 +3,7 @@ import { Cheerio, load } from 'cheerio';
 import { NoteForProcessing, updateNote } from '../anki';
 import sleep from './sleep';
 import { wrapPinyinWithToneClassesAndHTML } from './util-functions/wrap-pinyin-with-tone-classes-and-html';
+import { convertPinYinWithNumbersToToneClassesAndHtml } from './util-functions/convert-pinyin-with-numbers-to-tone-classes-and-html';
 import { addSpacesToPinyin } from './util-functions/add-spaces-to-pinyin';
 
 export interface ProcessNote {
@@ -28,19 +29,18 @@ function updateClassNames(html: string): string {
 export const primeProcessNote = (): ProcessNote => {
     return async (noteForProcessing: NoteForProcessing): Promise<void> => {
         const noteId = noteForProcessing.noteId;
-        const examplesBlank = updateClassNames(replaceStringWithBlanks(noteForProcessing.Examples, noteForProcessing.Simplified));
+        // const examplesBlank = updateClassNames(replaceStringWithBlanks(noteForProcessing.Examples, noteForProcessing.Simplified));
         // wrapPinyinWithToneClassesAndHTML(addSpacesToPinyin(noteForProcessing.Pinyin))
-        console.log({
-            simplified: noteForProcessing.Simplified,
-            examples: noteForProcessing.Examples,
-            examplesBlank
-        })
+
         const noteForAnki = {
             id: +noteId,
             fields: {
-                ExamplesBlank: examplesBlank,
+                Pinyin: convertPinYinWithNumbersToToneClassesAndHtml(noteForProcessing.Pinyin || ''),
+                // ExamplesBlank: examplesBlank,
             },
         };
+
+        // console.log(noteForAnki)
 
         await updateNote(noteForAnki);
         await sleep(50);

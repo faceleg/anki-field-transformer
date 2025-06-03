@@ -28,7 +28,8 @@ function containsHTML(str: string): boolean {
     console.log(`Processing cards from Anki query "${ANKI_DECK}"...`);
 
     const notes = await fetchNotesFromAnki(ANKI_DECK, (value: NoteForProcessing, index: number, array: NoteForProcessing[]) => {
-return value.ExamplesBlank.length === 0;
+        return /\d/.test(value.Pinyin || '');
+        // return value.ExamplesBlank.length === 0;
         // return true;
         // return value.Pinyin.length > 3 && !containsHTML(value.Pinyin)
         // return !value.Pinyin.includes(' ');
